@@ -11,10 +11,11 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("ApiDocs:Enabled"))
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference("/api/scalar");
+    app.MapOpenApi("/api/openapi/{documentName}.json");
+    app.MapScalarApiReference("/api/scalar", options =>
+        options.WithOpenApiRoutePattern("/api/openapi/{documentName}.json"));
 }
 
 app.UseHttpsRedirection();
