@@ -1,3 +1,6 @@
 .idea/
 .vs/
 *.user
+.env
+.env.*
+!.env.example
