@@ -28,7 +28,7 @@ builder.Services.AddControllers()
 
 var secretKey = builder.Configuration["Jwt:SecretKey"]
     ?? builder.Configuration["Jwt:Key"]
-    ?? "DEVELOPMENT_SECRET_KEY_MUST_BE_OVERRIDDEN_IN_PROD_12345";
+    ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -71,19 +71,27 @@ using (var scope = app.Services.CreateScope())
         var admin = db.Administrators.FirstOrDefault();
         if (admin == null)
         {
+            var adminLogin = app.Configuration["AdminSeed:Login"] ?? "admin";
+            var adminEmail = app.Configuration["AdminSeed:Email"] ?? "admin@bugtracker.local";
+            var adminPassword = app.Configuration["AdminSeed:Password"]
+                ?? throw new InvalidOperationException("AdminSeed:Password is not configured.");
+
             admin = new Administrator
             {
                 Id = Guid.NewGuid(),
-                Login = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Email = "admin@bugtracker.local"
+                Login = adminLogin,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
+                Email = adminEmail
             };
             db.Administrators.Add(admin);
             db.SaveChanges();
         }
     }
-    catch
+    catch (Exception ex)
     {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Database initialization or seeding failed.");
+        throw;
     }
 }
 
