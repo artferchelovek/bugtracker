@@ -17,6 +17,9 @@ namespace server.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto? dto)
         {
             if (dto == null || !ModelState.IsValid)
@@ -35,6 +38,9 @@ namespace server.Controllers
 
         [Authorize]
         [HttpGet("me")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMeAsync()
         {
             var userIdClaim = User.FindFirst("sub")?.Value;
