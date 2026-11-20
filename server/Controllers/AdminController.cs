@@ -18,6 +18,7 @@ namespace server.Controllers
         }
 
         [HttpGet("users")]
+        [ProducesResponseType(typeof(List<UserDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUsersAsync()
         {
             var users = await _service.GetUsersAsync();
@@ -25,6 +26,9 @@ namespace server.Controllers
         }
 
         [HttpPost("users")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RegisterUserAsync([FromBody] CreateUserDto dto)
         {
             if (!Guid.TryParse(User.FindFirst("sub")?.Value, out var adminId))
@@ -44,6 +48,8 @@ namespace server.Controllers
         }
 
         [HttpPut("users/{id:guid}/deactivate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeactivateUserAsync(Guid id)
         {
             var success = await _service.DeactivateUserAsync(id);

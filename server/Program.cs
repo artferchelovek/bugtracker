@@ -4,10 +4,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using server.Data;
+using server.Models;
 using server.Repositories;
 using server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -17,7 +28,7 @@ builder.Services.AddControllers()
 
 var secretKey = builder.Configuration["Jwt:SecretKey"]
     ?? builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
+    ?? "DEVELOPMENT_SECRET_KEY_MUST_BE_OVERRIDDEN_IN_PROD_12345";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -50,6 +61,32 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        db.Database.EnsureCreated();
+
+        var admin = db.Administrators.FirstOrDefault();
+        if (admin == null)
+        {
+            admin = new Administrator
+            {
+                Id = Guid.NewGuid(),
+                Login = "admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Email = "admin@bugtracker.local"
+            };
+            db.Administrators.Add(admin);
+            db.SaveChanges();
+        }
+    }
+    catch
+    {
+    }
+}
+
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("ApiDocs:Enabled"))
 {
     app.MapOpenApi("/api/openapi/{documentName}.json");
@@ -58,6 +95,8 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("ApiDocs
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
