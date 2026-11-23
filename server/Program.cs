@@ -4,10 +4,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using server.Data;
+using server.Models;
 using server.Repositories;
 using server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -50,6 +61,40 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        db.Database.EnsureCreated();
+
+        var admin = db.Administrators.FirstOrDefault();
+        if (admin == null)
+        {
+            var adminLogin = app.Configuration["AdminSeed:Login"] ?? "admin";
+            var adminEmail = app.Configuration["AdminSeed:Email"] ?? "admin@bugtracker.local";
+            var adminPassword = app.Configuration["AdminSeed:Password"]
+                ?? throw new InvalidOperationException("AdminSeed:Password is not configured.");
+
+            admin = new Administrator
+            {
+                Id = Guid.NewGuid(),
+                Login = adminLogin,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
+                Email = adminEmail
+            };
+            db.Administrators.Add(admin);
+            db.SaveChanges();
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Database initialization or seeding failed.");
+        throw;
+    }
+}
+
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("ApiDocs:Enabled"))
 {
     app.MapOpenApi("/api/openapi/{documentName}.json");
@@ -58,6 +103,8 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("ApiDocs
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
