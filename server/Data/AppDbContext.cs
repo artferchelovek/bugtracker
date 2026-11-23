@@ -59,6 +59,7 @@ namespace server.Data
             modelBuilder.Entity<Software>(entity =>
             {
                 entity.HasKey(s => s.Id);
+                entity.HasIndex(s => s.Name).IsUnique();
                 entity.Property(s => s.Name).HasMaxLength(200).IsRequired();
                 entity.Property(s => s.ContactEmail).HasMaxLength(200);
                 entity.Property(s => s.TechStack).HasMaxLength(500);
@@ -69,12 +70,13 @@ namespace server.Data
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(s => s.Members)
-                    .WithMany(m => m.SoftwareList);
+                    .WithMany(m => m.ParticipatingSoftwares);
             });
 
             modelBuilder.Entity<Component>(entity =>
             {
                 entity.HasKey(c => c.Id);
+                entity.HasIndex(c => new { c.SoftwareId, c.Name }).IsUnique();
                 entity.Property(c => c.Name).HasMaxLength(150).IsRequired();
 
                 entity.HasOne(c => c.Software)
@@ -86,6 +88,7 @@ namespace server.Data
             modelBuilder.Entity<Environment>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.SoftwareId, e.Name }).IsUnique();
                 entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
 
                 entity.HasOne(e => e.Software)
@@ -97,6 +100,7 @@ namespace server.Data
             modelBuilder.Entity<Release>(entity =>
             {
                 entity.HasKey(r => r.Id);
+                entity.HasIndex(r => new { r.SoftwareId, r.VersionTag }).IsUnique();
                 entity.Property(r => r.VersionTag).HasMaxLength(100).IsRequired();
 
                 entity.HasOne(r => r.Software)
@@ -180,13 +184,23 @@ namespace server.Data
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Text).IsRequired();
 
+                entity.Property(c => c.Reactions)
+                    .HasConversion(
+                        v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                        v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new Dictionary<string, int>())
+                    .Metadata.SetValueComparer(
+                        new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<Dictionary<string, int>>(
+                            (c1, c2) => c1 != null && c2 != null ? c1.SequenceEqual(c2) : c1 == c2,
+                            c => c.Aggregate(0, (a, p) => HashCode.Combine(a, p.Key.GetHashCode(), p.Value.GetHashCode())),
+                            c => new Dictionary<string, int>(c)));
+
                 entity.HasOne(c => c.Ticket)
                     .WithMany(t => t.Comments)
                     .HasForeignKey(c => c.TicketId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(c => c.Author)
-                    .WithMany(a => a.Comments)
+                    .WithMany()
                     .HasForeignKey(c => c.AuthorId)
                     .OnDelete(DeleteBehavior.Restrict);
             });

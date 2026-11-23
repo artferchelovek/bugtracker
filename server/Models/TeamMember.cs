@@ -13,8 +13,7 @@ namespace server.Models
         public Guid RegisteredById { get; set; }
         public Administrator RegisteredBy { get; set; } = null!;
 
-        public ICollection<Software> SoftwareList { get; set; } = new List<Software>();
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Software> ParticipatingSoftwares { get; set; } = new List<Software>();
     }
 
     public class Tester : TeamMember
