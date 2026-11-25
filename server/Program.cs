@@ -59,7 +59,22 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISoftwareRepository, SoftwareRepository>();
 builder.Services.AddScoped<ISoftwareService, SoftwareService>();
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        var publicServerUrl = builder.Configuration["ApiDocs:PublicServerUrl"];
+        if (!string.IsNullOrWhiteSpace(publicServerUrl))
+        {
+            foreach (var server in document.Servers ?? [])
+            {
+                server.Url = publicServerUrl.TrimEnd('/') + "/";
+            }
+        }
+
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 
