@@ -1,16 +1,21 @@
 import styles from "./AuthPage.module.css";
 import Button from "../../Components/Button/Button.tsx";
 import { useState } from "react";
-import { auth } from "../../logic/auth.ts";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../logic/authContext.ts";
+import { isAdmin } from "../../logic/auth.ts";
 
 export default function AuthPage() {
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
+
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {
-      const response = await auth.login(login, password);
-      console.log(response);
+      const user = await signIn(login, password);
+      navigate(isAdmin(user) ? "/admin" : "/", { replace: true });
     } catch (error) {
       console.log(error);
     }
