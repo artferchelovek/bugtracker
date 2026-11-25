@@ -1,0 +1,30 @@
+.button {
+    display: inline-flex;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 5px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+}
+
+.primary {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.secondary {
+    background-color: var(--md-sys-color-secondary);
+    color: var(--md-sys-color-on-secondary);
+}
+
+.body {
+    font: var(--md-sys-typescale-body-medium);
+    font-weight: bold;
+}
+
+.header {
+    font: var(--md-sys-typescale-body-large);
+    font-weight: bold;
+}

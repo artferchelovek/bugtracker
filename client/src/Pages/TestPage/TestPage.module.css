@@ -1,0 +1,10 @@
+.testContainer {
+    display: flex;
+    height: 100vh;
+}
+
+.content {
+    background: #000;
+    flex: 1;
+    color: white;
+}
