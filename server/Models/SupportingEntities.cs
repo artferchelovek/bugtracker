@@ -31,9 +31,8 @@ namespace server.Models
 
         public string Text { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
 
-        public string ReactionsJson { get; set; } = "{}";
+        public Dictionary<string, int> Reactions { get; set; } = new();
     }
 
     public class Attachment

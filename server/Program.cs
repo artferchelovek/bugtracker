@@ -56,6 +56,8 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISoftwareRepository, SoftwareRepository>();
+builder.Services.AddScoped<ISoftwareService, SoftwareService>();
 
 builder.Services.AddOpenApi();
 
@@ -66,13 +68,15 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        db.Database.EnsureCreated();
+        db.Database.Migrate();
 
         var admin = db.Administrators.FirstOrDefault();
         if (admin == null)
         {
-            var adminLogin = app.Configuration["AdminSeed:Login"] ?? "admin";
-            var adminEmail = app.Configuration["AdminSeed:Email"] ?? "admin@bugtracker.local";
+            var adminLogin = app.Configuration["AdminSeed:Login"]
+                ?? throw new InvalidOperationException("AdminSeed:Login is not configured.");
+            var adminEmail = app.Configuration["AdminSeed:Email"]
+                ?? throw new InvalidOperationException("AdminSeed:Email is not configured.");
             var adminPassword = app.Configuration["AdminSeed:Password"]
                 ?? throw new InvalidOperationException("AdminSeed:Password is not configured.");
 
