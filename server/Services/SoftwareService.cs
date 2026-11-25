@@ -73,7 +73,7 @@ namespace server.Services
                 }
             }
 
-            var components = Normalize(dto.Components, 150, "Компоненты");
+            var components = Normalize(dto.Components, 100, "Компоненты");
             foreach (var compName in components)
             {
                 software.Components.Add(new Component
@@ -224,9 +224,9 @@ namespace server.Services
                 throw new ArgumentException("Название компонента обязательно.");
             }
 
-            if (name.Length > 150)
+            if (name.Length > 100)
             {
-                throw new ArgumentException("Название компонента не может превышать 150 символов.");
+                throw new ArgumentException("Название компонента не может превышать 100 символов.");
             }
 
             if (software.Components.Any(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase)))

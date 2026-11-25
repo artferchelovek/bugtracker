@@ -24,7 +24,7 @@ namespace server.DTOs
     public class CreateNamedItemDto
     {
         [Required(ErrorMessage = "Название обязательно.")]
-        [MaxLength(150, ErrorMessage = "Название не может превышать 150 символов.")]
+        [MaxLength(100, ErrorMessage = "Название не может превышать 100 символов.")]
         public string Name { get; set; } = string.Empty;
     }
 

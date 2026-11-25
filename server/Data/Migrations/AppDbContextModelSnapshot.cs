@@ -141,16 +141,15 @@ namespace server.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("SoftwareId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SoftwareId", "Name")
-                        .IsUnique();
+                    b.HasIndex("SoftwareId");
 
                     b.ToTable("Components");
                 });
@@ -171,8 +170,7 @@ namespace server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SoftwareId", "Name")
-                        .IsUnique();
+                    b.HasIndex("SoftwareId");
 
                     b.ToTable("Environments");
                 });
@@ -233,8 +231,7 @@ namespace server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SoftwareId", "VersionTag")
-                        .IsUnique();
+                    b.HasIndex("SoftwareId");
 
                     b.ToTable("Releases");
                 });
@@ -264,9 +261,6 @@ namespace server.Data.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.HasIndex("OwnerId");
 

@@ -59,7 +59,6 @@ namespace server.Data
             modelBuilder.Entity<Software>(entity =>
             {
                 entity.HasKey(s => s.Id);
-                entity.HasIndex(s => s.Name).IsUnique();
                 entity.Property(s => s.Name).HasMaxLength(200).IsRequired();
                 entity.Property(s => s.ContactEmail).HasMaxLength(200);
                 entity.Property(s => s.TechStack).HasMaxLength(500);
@@ -76,8 +75,7 @@ namespace server.Data
             modelBuilder.Entity<Component>(entity =>
             {
                 entity.HasKey(c => c.Id);
-                entity.HasIndex(c => new { c.SoftwareId, c.Name }).IsUnique();
-                entity.Property(c => c.Name).HasMaxLength(150).IsRequired();
+                entity.Property(c => c.Name).HasMaxLength(100).IsRequired();
 
                 entity.HasOne(c => c.Software)
                     .WithMany(s => s.Components)
@@ -88,7 +86,6 @@ namespace server.Data
             modelBuilder.Entity<Environment>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.HasIndex(e => new { e.SoftwareId, e.Name }).IsUnique();
                 entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
 
                 entity.HasOne(e => e.Software)
@@ -100,7 +97,6 @@ namespace server.Data
             modelBuilder.Entity<Release>(entity =>
             {
                 entity.HasKey(r => r.Id);
-                entity.HasIndex(r => new { r.SoftwareId, r.VersionTag }).IsUnique();
                 entity.Property(r => r.VersionTag).HasMaxLength(100).IsRequired();
 
                 entity.HasOne(r => r.Software)
