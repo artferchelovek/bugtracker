@@ -12,15 +12,18 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    const token = localStorage.getItem("accessToken");
 
-    if (!localStorage.getItem("accessToken")) {
+    if (!token) {
       return;
     }
 
     auth
       .me()
       .then((currentUser) => {
-        if (active) setUser(currentUser);
+        if (active && localStorage.getItem("accessToken") === token) {
+          setUser(currentUser);
+        }
       })
       .catch(() => {
         if (active) setUser(null);
@@ -42,8 +45,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     return currentUser;
   };
 
+  const signOut = () => {
+    auth.logout();
+    setUser(null);
+    setLoading(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

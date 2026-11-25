@@ -5,6 +5,8 @@ import type { User } from "../../logic/auth.ts";
 import { admin } from "../../logic/admin.ts";
 import type { ICreateUserForm } from "../../logic/admin.ts";
 import Button from "../../Components/Button/Button.tsx";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../logic/authContext.ts";
 
 const emptyForm: ICreateUserForm = {
   fullName: "",
@@ -15,6 +17,8 @@ const emptyForm: ICreateUserForm = {
 
 // страница временная, для тестов, юай юикс появится позже
 export default function AdminPage() {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState<ICreateUserForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,7 +72,15 @@ export default function AdminPage() {
       </div>
 
       <form className={styles.createUser} onSubmit={registerUser}>
-        <Button font="body">Выйти из аккаунта</Button>
+        <Button
+          font="body"
+          onClick={() => {
+            signOut();
+            navigate("/login", { replace: true });
+          }}
+        >
+          Выйти из аккаунта
+        </Button>
         <p>Создать пользователя</p>
 
         <div className={styles.userField}>
