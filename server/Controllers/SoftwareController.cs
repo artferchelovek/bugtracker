@@ -20,10 +20,21 @@ namespace server.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(List<SoftwareDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetSoftwaresAsync([FromQuery] bool myOnly = false)
+        public async Task<IActionResult> GetSoftwaresAsync([FromQuery] bool myOnly = false, [FromQuery] string? search = null)
         {
             var userId = GetCurrentUserId();
-            var result = await _service.GetSoftwaresAsync(myOnly, userId);
+            var result = await _service.GetSoftwaresAsync(myOnly, userId, search);
+            return Ok(result);
+        }
+
+        [HttpGet("developers")]
+        [Authorize(Roles = "Tester,Developer")]
+        [ProducesResponseType(typeof(List<UserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetActiveDevelopersAsync()
+        {
+            var result = await _service.GetActiveDevelopersAsync();
             return Ok(result);
         }
 

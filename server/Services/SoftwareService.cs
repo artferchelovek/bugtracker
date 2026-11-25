@@ -126,9 +126,25 @@ namespace server.Services
             };
         }
 
-        public async Task<List<SoftwareDto>> GetSoftwaresAsync(bool myOnly, Guid currentUserId)
+        public async Task<List<SoftwareDto>> GetSoftwaresAsync(bool myOnly, Guid currentUserId, string? search = null)
         {
-            return await _repository.GetSoftwaresAsync(myOnly, currentUserId);
+            return await _repository.GetSoftwaresAsync(myOnly, currentUserId, search);
+        }
+
+        public async Task<List<UserDto>> GetActiveDevelopersAsync()
+        {
+            var developers = await _repository.GetActiveDevelopersAsync();
+            return developers.Select(d => new UserDto
+            {
+                Id = d.Id,
+                Login = d.Login,
+                FullName = d.FullName,
+                Email = d.Email,
+                Position = d.Position,
+                Role = nameof(Developer),
+                IsActive = d.IsActive,
+                RegisteredByLogin = null
+            }).ToList();
         }
 
         public async Task<bool> AddToMyListAsync(Guid softwareId, Guid currentUserId)

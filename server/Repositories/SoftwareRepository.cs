@@ -37,13 +37,19 @@ namespace server.Repositories
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<List<SoftwareDto>> GetSoftwaresAsync(bool myOnly, Guid currentUserId)
+        public async Task<List<SoftwareDto>> GetSoftwaresAsync(bool myOnly, Guid currentUserId, string? search = null)
         {
             var query = _context.Softwares.AsNoTracking();
 
             if (myOnly)
             {
                 query = query.Where(s => s.OwnerId == currentUserId || s.Members.Any(m => m.Id == currentUserId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var trimmedSearch = search.Trim().ToLower();
+                query = query.Where(s => s.Name.ToLower().Contains(trimmedSearch) || (s.Owner != null && s.Owner.FullName.ToLower().Contains(trimmedSearch)));
             }
 
             return await query
@@ -62,6 +68,15 @@ namespace server.Repositories
                     EnvironmentsCount = s.Environments.Count(),
                     OpenTicketsCount = s.Tickets.Count(t => t.Status != TicketStatus.CLOSED && t.Status != TicketStatus.DRAFT)
                 })
+                .ToListAsync();
+        }
+
+        public async Task<List<Developer>> GetActiveDevelopersAsync()
+        {
+            return await _context.Developers
+                .AsNoTracking()
+                .Where(d => d.IsActive)
+                .OrderBy(d => d.FullName)
                 .ToListAsync();
         }
 

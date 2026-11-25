@@ -8,7 +8,8 @@ namespace server.Repositories
         Task<bool> NameExistsAsync(string name);
         Task<Software?> GetByIdAsync(Guid id);
         Task<Software?> GetByIdWithDetailsAsync(Guid id);
-        Task<List<SoftwareDto>> GetSoftwaresAsync(bool myOnly, Guid currentUserId);
+        Task<List<SoftwareDto>> GetSoftwaresAsync(bool myOnly, Guid currentUserId, string? search = null);
+        Task<List<Developer>> GetActiveDevelopersAsync();
         Task<TeamMember?> GetTeamMemberByIdAsync(Guid userId);
         Task<List<Developer>> GetDevelopersByIdsAsync(IEnumerable<Guid> ids);
         void Add(Software software);
