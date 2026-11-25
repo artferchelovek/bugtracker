@@ -39,7 +39,7 @@ export const auth = {
           throw new Error("Ответ /auth/me не содержит роль пользователя");
         }
 
-        return { ...user, role };
+        return { ...user, Role: role };
       });
     pendingMe = { token, promise };
     void promise.then(
