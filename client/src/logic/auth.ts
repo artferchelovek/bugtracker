@@ -1,18 +1,18 @@
 import { api } from "./api.ts";
 
 export interface User {
-  id: string;
-  login: string;
-  fullName: string;
-  email: string;
-  position: string;
-  role: string;
-  isActive: boolean;
-  registeredByLogin: string | null;
+  Id: string;
+  Login: string;
+  FullName: string;
+  Email: string;
+  Position: string;
+  Role: string;
+  IsActive: boolean;
+  RegisteredByLogin: string | null;
 }
 
 export function isAdmin(user: User | null | undefined) {
-  return typeof user?.role === "string" && user.role.toLowerCase() === "admin";
+  return typeof user?.Role === "string" && user.Role.toLowerCase() === "admin";
 }
 
 let pendingMe: { token: string | null; promise: Promise<User> } | null = null;
@@ -29,16 +29,18 @@ export const auth = {
       return pendingMe.promise;
     }
 
-    const promise = api.get<User & { Role?: string }>("/auth/me").then((response) => {
-      const user = response.data;
-      const role = user.role ?? user.Role;
+    const promise = api
+      .get<User & { Role?: string }>("/auth/me")
+      .then((response) => {
+        const user = response.data;
+        const role = user.Role ?? user.Role;
 
-      if (typeof role !== "string") {
-        throw new Error("Ответ /auth/me не содержит роль пользователя");
-      }
+        if (typeof role !== "string") {
+          throw new Error("Ответ /auth/me не содержит роль пользователя");
+        }
 
-      return { ...user, role };
-    });
+        return { ...user, role };
+      });
     pendingMe = { token, promise };
     void promise.then(
       () => {
@@ -50,5 +52,9 @@ export const auth = {
     );
 
     return promise;
+  },
+
+  logout: () => {
+    localStorage.removeItem("accessToken");
   },
 };

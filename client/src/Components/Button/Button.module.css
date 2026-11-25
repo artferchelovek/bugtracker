@@ -20,11 +20,11 @@
 }
 
 .body {
-    font: var(--md-sys-typescale-body-medium-font);
+    font: var(--md-sys-typescale-body-medium);
     font-weight: bold;
 }
 
 .header {
-    font: var(--md-sys-typescale-body-large-font);
+    font: var(--md-sys-typescale-body-large);
     font-weight: bold;
 }

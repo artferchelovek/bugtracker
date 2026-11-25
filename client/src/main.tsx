@@ -10,6 +10,7 @@ import TestPage from "./Pages/TestPage/TestPage.tsx";
 import TicketsPage from "./Pages/TicketsPage/TicketsPage.tsx";
 import AuthProvider from "./logic/AuthProvider.tsx";
 import AdminRouteGuard from "./logic/AdminRouteGuard.tsx";
+import AdminPage from "./Pages/AdminPage/AdminPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -25,7 +26,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path={"/tickets"} element={<TicketsPage />} />
             </Route>
             <Route element={<ProtectedRoute adminOnly />}>
-              <Route path={"/admin"} element={<MainPage />} />
+              <Route path={"/admin"} element={<AdminPage />} />
             </Route>
           </Routes>
         </AdminRouteGuard>
